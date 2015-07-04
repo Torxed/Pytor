@@ -1,5 +1,6 @@
-import urllib.parse, traceback, pymongo
-import ipaddress, struct
+import pymongo
+import ipaddress
+import struct
 from socket import *
 from base64 import b64decode as bdec
 from base64 import b64encode as benc
@@ -15,7 +16,7 @@ coreSock.bind(('0.0.0.0', 8080))
 coreSock.setblocking(0)
 
 dbConnection = pymongo.MongoClient()
-#dbConnection.drop_database('Pytor') ## < DEBUG !
+dbConnection.drop_database('Pytor') ## < DEBUG !
 database = dbConnection.Pytor
 table = database.torrents
 
@@ -64,9 +65,10 @@ while True:
 				print(connection_id)
 				print(transaction_id)
 
-				response = pbit32(3) + pbit32(transaction_id) + struct.pack('>p', "Can not bypass connection request.")
+				response = pbit32(3) + pbit32(transaction_id) + struct.pack('>p', b"Can not bypass connection request.")
 				coreSock.sendto(response, (address[0], address[1]))
-				raise KeyError('Client tried to bypass connection sync')
+				continue ## TODO: Investigate why this happens because it appears even clients with good intentions can get this. (especially µTorrent)
+				#raise KeyError('Client tried to bypass connection sync')
 
 			elif action == 1:
 				print('Got a announce request:')
@@ -114,7 +116,7 @@ while True:
 					for seeder in seeders:
 						response += pbit32(int(seeder[1:])) + pbit16(seeders[seeder])
 				else:
-					table.insert_one({"id": info_hash, "users" : {'seeders' : {}, 'completed' : {}, 'leechers' : {}}})
+					table.insert_one({"id": info_hash, "users" : {'seeders' : {'U'+str(int(ipaddress.ip_address('46.21.102.81'))) : 1337}, 'completed' : {}, 'leechers' : {}}})
 					response = pbit32(1) + pbit32(transaction_id) + pbit32(interval) + pbit32(0) + pbit32(0)
 
 				print('<<', response)
