@@ -2,8 +2,6 @@
 A tiny Python based Torrent tracker!
 *(Check out Pytor-client for a light weight Python based torrent client.)*
 
-<<<<<<< HEAD
-=======
 Requirements
 ------------
 * mongoDB (default on localhost for testing purposes)
@@ -13,4 +11,3 @@ Requirements
 How to use
 ----------
 > [user@server]$ python3 core.py
->>>>>>> origin/master
